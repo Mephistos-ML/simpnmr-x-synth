@@ -143,16 +143,43 @@ When `signal_labels.file` is supplied, the generator creates one peak per
 chemical label using SimpNMR-X's `average_shifts: all` policy. Exported replay
 and GMM configurations contain the same label mapping.
 
+### Susceptibility models
+
+`susceptibility.model` supports two generation bases:
+
+- `isoaxrho_euler` samples axial/rhombic invariants and ZYZ Euler angles.
+- `split` samples the traceless Cartesian components
+  `dxx`, `dyy`, `dxy`, `dxz`, and `dyz`.
+
+Both modes derive `chi_iso` from the SimpNMR-X spin-only Curie-law model and
+write the same Cartesian tensor targets. A `split` configuration may optionally
+fix all five Cartesian deviation components:
+
+```yaml
+susceptibility:
+  model: split
+  dxx: 0.012
+  dyy: -0.008
+  dxy: 0.003
+  dxz: -0.002
+  dyz: 0.005
+```
+
+Either provide all five split components or omit all of them for deterministic
+sampling. `rho_over_ax` and Euler-angle fields apply only to `isoaxrho_euler`.
+
 ## Generation model
 
 SimpNMR-X-Synth uses the scientific implementations and conventions provided by
 SimpNMR-X:
 
 - `chi_iso` is calculated using the spin-only Curie-law implementation.
-- Explicit rhombicity ratios and Euler angles are fixed; omitted values are
-  sampled deterministically.
-- `rho_over_ax` is sampled in `[0, 1/3]` when not fixed.
-- Euler angles are sampled in standard ZYZ domains.
+- For `isoaxrho_euler`, explicit rhombicity ratios and Euler angles are fixed;
+  omitted values are sampled deterministically.
+- `rho_over_ax` is sampled in `[0, 1/3]` and Euler angles in standard ZYZ
+  domains when not fixed.
+- For `split`, Cartesian deviations are sampled deterministically and scaled
+  so that the generated susceptibility tensor has non-negative eigenvalues.
 - Susceptibility targets are exported in canonical SimpNMR-X units of Å³.
 - For `linewidth.method: r6`, `p1` is derived from the point-dipole Guéron
   Curie R2 calculation with the fixed generation policy `tau_R = 1 ns`.
