@@ -16,7 +16,11 @@ if TYPE_CHECKING:
 def write_ml_dataset(*, cases: tuple[GeneratedCase, ...], output_file: Path) -> None:
     """Write the canonical paired moments-to-parameters ML table."""
     rows = [
-        {"sample_id": case.record.sample_id, **case.record.moments, **case.record.target.as_row()}
+        {
+            "sample_id": case.record.sample_id,
+            **case.record.moments,
+            **case.record.target.as_row(),
+        }
         for case in cases
     ]
     write_csv_safe(pd.DataFrame(rows), output_file, float_format="%.15g")

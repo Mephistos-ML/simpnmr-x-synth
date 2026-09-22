@@ -13,6 +13,10 @@ def write_indexed_geometry(*, input_file: str, output_file: Path) -> None:
     labels, coordinates = load_xyz(input_file)
     output_file.parent.mkdir(parents=True, exist_ok=True)
     save_xyz(
-        str(output_file), labels, coordinates, with_numbers=True, verbose=False,
+        str(output_file),
+        labels,
+        coordinates,
+        with_numbers=True,
+        verbose=False,
         comment="Indexed by SimpNMR-X-Synth for replayable SimpNMR-X fitting.",
     )

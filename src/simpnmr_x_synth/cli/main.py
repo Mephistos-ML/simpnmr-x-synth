@@ -53,7 +53,10 @@ def build_parser() -> argparse.ArgumentParser:
     dataset_generate_parser.add_argument("config_file", help="YAML config path")
     dataset_generate_parser.add_argument(
         "--output",
-        help="output directory (defaults to a sibling directory named after project.name)",
+        help=(
+            "output directory (defaults to a sibling directory named after "
+            "project.name)"
+        ),
     )
     dataset_validate_parser = dataset_subparsers.add_parser(
         "validate",

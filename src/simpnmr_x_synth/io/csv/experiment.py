@@ -6,7 +6,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import pandas as pd
-
 from simpnmr_x.core.const.gammas import NUCLEAR_GAMMAS
 from simpnmr_x.core.util.strings import remove_numbers
 

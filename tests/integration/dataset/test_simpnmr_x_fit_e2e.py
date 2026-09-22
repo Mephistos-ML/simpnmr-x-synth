@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import os
 import csv
+import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -39,9 +39,12 @@ def test_controlled_synthetic_case_recovers_chi_and_linewidth(tmp_path: Path):
         {
             "project": {"name": "control", "n_cases": 1, "seed": 42},
             "hyperfine": {
-                "method": "pdip", "file": str(geometry),
-                "paramagnetic_centre": [0, 0, 0], "spin": 0.5,
-                "orbit": 3, "total_momentum_J": 3.5,
+                "method": "pdip",
+                "file": str(geometry),
+                "paramagnetic_centre": [0, 0, 0],
+                "spin": 0.5,
+                "orbit": 3,
+                "total_momentum_J": 3.5,
             },
             "nuclei": {"include": "H"},
             "diamagnetic": {"method": "csv", "file": str(diamagnetic)},
@@ -60,12 +63,25 @@ def test_controlled_synthetic_case_recovers_chi_and_linewidth(tmp_path: Path):
     fit_dir = case_dir / "SIMULATIONS" / "FITTING"
     truth = _read_one_row(case_dir / "DATA" / "CHI" / "susceptibility.csv")
     _fix_control_nuisance_variables(fit_dir / "config.yml", truth=truth)
-    environment = {**os.environ, "MPLBACKEND": "Agg", "MPLCONFIGDIR": str(tmp_path / "mpl")}
+    environment = {
+        **os.environ,
+        "MPLBACKEND": "Agg",
+        "MPLCONFIGDIR": str(tmp_path / "mpl"),
+    }
     result = subprocess.run(
         [
-            "simpnmr-x", "--hide", "fit_susc", "config.yml",
-            "--shift_plots", "off", "--spread_plots", "off",
-            "--contrib_plots", "off", "--isoaxrho_plots", "off",
+            "simpnmr-x",
+            "--hide",
+            "fit_susc",
+            "config.yml",
+            "--shift_plots",
+            "off",
+            "--spread_plots",
+            "off",
+            "--contrib_plots",
+            "off",
+            "--isoaxrho_plots",
+            "off",
         ],
         cwd=fit_dir,
         env=environment,
@@ -77,15 +93,16 @@ def test_controlled_synthetic_case_recovers_chi_and_linewidth(tmp_path: Path):
         fit_dir / "simpnmr_x_fitted_output" / "susceptibility_tensor.csv"
     )
     fitted_columns = {
-        "chi_xx": "chi_xx (Å^3)", "chi_xy": "chi_xy (Å^3)",
-        "chi_xz": "chi_xz (Å^3)", "chi_yy": "chi_yy (Å^3)",
-        "chi_yz": "chi_yz (Å^3)", "chi_zz": "chi_zz (Å^3)",
+        "chi_xx": "chi_xx (Å^3)",
+        "chi_xy": "chi_xy (Å^3)",
+        "chi_xz": "chi_xz (Å^3)",
+        "chi_yy": "chi_yy (Å^3)",
+        "chi_yz": "chi_yz (Å^3)",
+        "chi_zz": "chi_zz (Å^3)",
     }
     for name, column in fitted_columns.items():
         assert abs(float(fitted[column]) - float(truth[name])) <= 5e-7
-    report = yaml.safe_load(
-        validate_dataset_case(case_dir).read_text(encoding="utf-8")
-    )
+    report = yaml.safe_load(validate_dataset_case(case_dir).read_text(encoding="utf-8"))
     assert report["moment_score"] is None
     assert report["absolute_error"]["linewidth_p1"] <= 5e-7
     assert report["absolute_error"]["linewidth_p2"] <= 5e-7
@@ -107,9 +124,7 @@ def _fix_control_nuisance_variables(
     for name, truth_name in truth_names.items():
         variables[name][0] = "fix"
         variables[name][1] = float(truth[truth_name])
-    config_file.write_text(
-        yaml.safe_dump(payload, sort_keys=False), encoding="utf-8"
-    )
+    config_file.write_text(yaml.safe_dump(payload, sort_keys=False), encoding="utf-8")
 
 
 def _read_one_row(file_name: Path) -> dict[str, str]:

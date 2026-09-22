@@ -32,7 +32,8 @@ def write_csv_safe(
     with path.open("w", encoding=encoding, newline=newline) as handle:
         timestamp = datetime.datetime.now().strftime("%H:%M:%S %d-%m-%Y")
         handle.write(
-            f"# This file was generated with SimpNMR-X-Synth v{__version__} at {timestamp}\n"
+            "# This file was generated with SimpNMR-X-Synth "
+            f"v{__version__} at {timestamp}\n"
         )
         if comment is not None:
             comments = [comment] if isinstance(comment, str) else comment
