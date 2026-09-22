@@ -5,7 +5,7 @@ paramagnetic NMR (pNMR) workflows. It creates replayable datasets for
 supervised learning, regression testing, and validation of
 [SimpNMR-X](https://github.com/Mephistos-ML/simpnmr-x) fitting pipelines.
 
-It is designed as a companion tool rather than a separate simulation stack:
+It is designed as a companion tool:
 generated cases follow the SimpNMR-X example layout, preserve the same data
 contracts, and include the information required to reproduce each case.
 
