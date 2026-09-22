@@ -7,12 +7,12 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from paranmr.__version__ import __version__ as paranmr_version
+from simpnmr_x.__version__ import __version__ as simpnmr_x_version
 
-from paranmr_synth.__version__ import __version__
+from simpnmr_x_synth.__version__ import __version__
 
 if TYPE_CHECKING:
-    from paranmr_synth.cfg.dataset import DatasetGenerationConfig
+    from simpnmr_x_synth.cfg.dataset import DatasetGenerationConfig
 
 
 def write_manifest(
@@ -22,9 +22,9 @@ def write_manifest(
     payload = {
         "schema_version": 1,
         "generator": {
-            "name": "ParaNMR-Synth",
+            "name": "SimpNMR-X-Synth",
             "version": __version__,
-            "paranmr_version": paranmr_version,
+            "simpnmr_x_version": simpnmr_x_version,
         },
         "project_name": config.project.name,
         "seed": config.project.seed,
@@ -34,4 +34,6 @@ def write_manifest(
         "normalized_config": asdict(config),
     }
     output_file.parent.mkdir(parents=True, exist_ok=True)
-    output_file.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    output_file.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )

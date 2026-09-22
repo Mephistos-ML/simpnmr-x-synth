@@ -1,4 +1,4 @@
-"""Command-line entrypoint for ParaNMR-Synth."""
+"""Command-line entrypoint for SimpNMR-X-Synth."""
 
 from __future__ import annotations
 
@@ -6,10 +6,10 @@ import argparse
 import logging
 from pathlib import Path
 
-from paranmr_synth.app.pipelines.dataset_export import generate_dataset
-from paranmr_synth.app.pipelines.dataset_validation import validate_dataset_case
-from paranmr_synth.cfg.dataset import DatasetGenerationConfig
-from paranmr_synth.cli.set_logging import setup_logging
+from simpnmr_x_synth.app.pipelines.dataset_export import generate_dataset
+from simpnmr_x_synth.app.pipelines.dataset_validation import validate_dataset_case
+from simpnmr_x_synth.cfg.dataset import DatasetGenerationConfig
+from simpnmr_x_synth.cli.set_logging import setup_logging
 
 logger = logging.getLogger(__name__)
 
@@ -18,8 +18,8 @@ def build_parser() -> argparse.ArgumentParser:
     """Build the top-level CLI parser."""
 
     parser = argparse.ArgumentParser(
-        prog="paranmr-synth",
-        description="Generate paranmr-compatible susceptibility tensor series.",
+        prog="simpnmr-x-synth",
+        description="Generate SimpNMR-X-compatible susceptibility tensor series.",
     )
     subparsers = parser.add_subparsers(dest="command")
 
@@ -53,11 +53,14 @@ def build_parser() -> argparse.ArgumentParser:
     dataset_generate_parser.add_argument("config_file", help="YAML config path")
     dataset_generate_parser.add_argument(
         "--output",
-        help="output directory (defaults to a sibling directory named after project.name)",
+        help=(
+            "output directory (defaults to a sibling directory named after "
+            "project.name)"
+        ),
     )
     dataset_validate_parser = dataset_subparsers.add_parser(
         "validate",
-        help="compare a completed ParaNMR fit with synthetic ground truth",
+        help="compare a completed SimpNMR-X fit with synthetic ground truth",
     )
     dataset_validate_parser.add_argument("case_dir", help="case directory")
 
@@ -75,7 +78,7 @@ def main() -> int:
     )
 
     if args.version:
-        from paranmr_synth.__version__ import __version__
+        from simpnmr_x_synth.__version__ import __version__
 
         print(__version__)
         return 0

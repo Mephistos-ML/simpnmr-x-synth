@@ -1,4 +1,4 @@
-"""CSV serialization primitives for ParaNMR-Synth artifacts."""
+"""CSV serialization primitives for SimpNMR-X-Synth artifacts."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from paranmr_synth.__version__ import __version__
+from simpnmr_x_synth.__version__ import __version__
 
 
 def write_csv_safe(
@@ -22,9 +22,9 @@ def write_csv_safe(
     encoding: str = "utf-8-sig",
     newline: str = "",
 ) -> None:
-    """Write a CSV with ParaNMR-Synth provenance and stable UTF-8 encoding.
+    """Write a CSV with SimpNMR-X-Synth provenance and stable UTF-8 encoding.
 
-    This is the synthetic-product serialization primitive. ParaNMR remains the
+    This is the synthetic-product serialization primitive. SimpNMR-X remains the
     source of truth for scientific calculations and its own file formats.
     """
     path = Path(file_name)
@@ -32,7 +32,8 @@ def write_csv_safe(
     with path.open("w", encoding=encoding, newline=newline) as handle:
         timestamp = datetime.datetime.now().strftime("%H:%M:%S %d-%m-%Y")
         handle.write(
-            f"# This file was generated with ParaNMR-Synth v{__version__} at {timestamp}\n"
+            "# This file was generated with SimpNMR-X-Synth "
+            f"v{__version__} at {timestamp}\n"
         )
         if comment is not None:
             comments = [comment] if isinstance(comment, str) else comment

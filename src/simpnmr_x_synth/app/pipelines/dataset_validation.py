@@ -1,11 +1,10 @@
-"""Compare a completed ParaNMR fit with one synthetic ground-truth case."""
+"""Compare a completed SimpNMR-X fit with one synthetic ground-truth case."""
 
 from __future__ import annotations
 
 import csv
 import json
 from pathlib import Path
-
 
 _TENSOR_COLUMNS = {
     "chi_xx": "chi_xx (Å^3)",
@@ -21,7 +20,7 @@ def validate_dataset_case(case_dir: str | Path) -> Path:
     """Write a factual truth-vs-fit report for one completed replayable case."""
     root = Path(case_dir)
     truth_susceptibility = _read_one_row(root / "DATA" / "CHI" / "susceptibility.csv")
-    fitted_dir = root / "SIMULATIONS" / "FITTING" / "paranmr_fitted_output"
+    fitted_dir = root / "SIMULATIONS" / "FITTING" / "simpnmr_x_fitted_output"
     fitted_susceptibility = _read_one_row(fitted_dir / "susceptibility_tensor.csv")
     fitted_linewidth = _read_one_row(_linewidth_output_file(fitted_dir))
     linewidth_truth = _read_dataset_linewidth_truth(root)
@@ -37,9 +36,7 @@ def validate_dataset_case(case_dir: str | Path) -> Path:
         "linewidth_p1": float(fitted_linewidth["p1"]),
         "linewidth_p2": float(fitted_linewidth["p2"]),
     }
-    absolute_error = {
-        name: abs(fitted[name] - truth[name]) for name in truth
-    }
+    absolute_error = {name: abs(fitted[name] - truth[name]) for name in truth}
     report = {
         "status": "compared",
         "truth": truth,
@@ -83,9 +80,7 @@ def _read_dataset_linewidth_truth(case_dir: Path) -> dict[str, float]:
 def _single_file(directory: Path, prefix: str, *, suffix: str) -> Path:
     matches = sorted(directory.glob(f"{prefix}*{suffix}"))
     if len(matches) != 1:
-        raise ValueError(
-            f"Expected exactly one {prefix}*{suffix} file in {directory}"
-        )
+        raise ValueError(f"Expected exactly one {prefix}*{suffix} file in {directory}")
     return matches[0]
 
 

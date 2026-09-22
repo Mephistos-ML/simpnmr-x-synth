@@ -1,8 +1,8 @@
 """Deterministic physical R6 linewidth-parameter generation.
 
-The distance-dependent component is derived from ParaNMR's point-dipole
+The distance-dependent component is derived from SimpNMR-X's point-dipole
 Guéron Curie ``R2`` forward calculation. The distance-independent component
-is sampled in Hz and converted to ParaNMR's internal ppm R6 convention.
+is sampled in Hz and converted to SimpNMR-X's internal ppm R6 convention.
 """
 
 from __future__ import annotations
@@ -11,15 +11,15 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 import numpy as np
+from simpnmr_x.core.const.gammas import NUCLEAR_GAMMAS
+from simpnmr_x.core.relaxation.gueron import calc_r2_curie
 
-from paranmr.core.const.gammas import NUCLEAR_GAMMAS
-from paranmr.core.relaxation.gueron import calc_r2_curie
-
-from paranmr_synth.core.generators.deterministic import unit_interval_draw
+from simpnmr_x_synth.core.generators.deterministic import unit_interval_draw
 
 if TYPE_CHECKING:
-    from paranmr.core.domain.mol import Molecule
-    from paranmr_synth.cfg.dataset import DatasetGenerationConfig
+    from simpnmr_x.core.domain.mol import Molecule
+
+    from simpnmr_x_synth.cfg.dataset import DatasetGenerationConfig
 
 
 # Fixed synthetic-generation policy, not a user-facing fit parameter.
@@ -29,7 +29,7 @@ P2_HZ_BOUNDS = (0.0, 50.0)
 
 @dataclass(frozen=True, slots=True)
 class LinewidthLatents:
-    """R6 parameters in ParaNMR ppm convention plus human-facing Hz truth."""
+    """R6 parameters in SimpNMR-X ppm convention plus human-facing Hz truth."""
 
     p1: float
     p2: float
@@ -49,7 +49,8 @@ def generate_linewidth_latents(
     )
     return LinewidthLatents(
         p1=derive_curie_p1_ppm_a6(config=config, molecule=molecule),
-        p2=p2_hz / _larmor_mhz(
+        p2=p2_hz
+        / _larmor_mhz(
             molecule=molecule, magnetic_field_t=config.experiment.magnetic_field_t
         ),
         p2_hz=p2_hz,
@@ -59,10 +60,10 @@ def generate_linewidth_latents(
 def derive_curie_p1_ppm_a6(
     *, config: "DatasetGenerationConfig", molecule: "Molecule"
 ) -> float:
-    """Derive ``p1`` from ParaNMR's Curie ``R2`` forward API.
+    """Derive ``p1`` from SimpNMR-X's Curie ``R2`` forward API.
 
     For one isotope, the point-dipole Curie rate is exactly proportional to
-    ``r^-6``. This function evaluates the ParaNMR forward API and removes that
+    ``r^-6``. This function evaluates the SimpNMR-X forward API and removes that
     geometric factor instead of duplicating its physical expression.
     """
     _validate_r6_molecule(molecule)
@@ -70,7 +71,8 @@ def derive_curie_p1_ppm_a6(
     gamma_mhz_t = float(NUCLEAR_GAMMAS[element])
     labels = [nucleus.label for nucleus in molecule.nuclei]
     coordinates = {
-        nucleus.label: np.asarray(nucleus.coord, dtype=float) for nucleus in molecule.nuclei
+        nucleus.label: np.asarray(nucleus.coord, dtype=float)
+        for nucleus in molecule.nuclei
     }
     gamma_rad_s_t = gamma_mhz_t * 2.0 * np.pi * 1.0e6
     omega_by_label = {
@@ -88,9 +90,12 @@ def derive_curie_p1_ppm_a6(
         molecule.electronic.orbit_L,
         molecule.electronic.total_J,
     )
-    larmor_hz = _larmor_mhz(
-        molecule=molecule, magnetic_field_t=config.experiment.magnetic_field_t
-    ) * 1.0e6
+    larmor_hz = (
+        _larmor_mhz(
+            molecule=molecule, magnetic_field_t=config.experiment.magnetic_field_t
+        )
+        * 1.0e6
+    )
     coefficients = []
     for label in labels:
         distance_a = float(np.linalg.norm(coordinates[label] - centre))
@@ -106,7 +111,9 @@ def derive_curie_p1_ppm_a6(
 def _larmor_mhz(*, molecule: "Molecule", magnetic_field_t: float) -> float:
     """Return the positive Larmor frequency for a single-element dataset."""
     _validate_r6_molecule(molecule)
-    frequency = abs(float(NUCLEAR_GAMMAS[molecule.nuclei[0].label_nn]) * magnetic_field_t)
+    frequency = abs(
+        float(NUCLEAR_GAMMAS[molecule.nuclei[0].label_nn]) * magnetic_field_t
+    )
     if frequency == 0.0:
         raise ValueError("R6 linewidth generation requires a non-zero Larmor frequency")
     return frequency

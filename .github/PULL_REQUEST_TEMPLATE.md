@@ -25,8 +25,8 @@ If any box is unchecked, explain why and reference prior discussion.
 ## Architecture Compliance
 
 - [ ] No cross-layer imports
-- [ ] No scientific or numerical logic outside `paranmr.core`
-- [ ] No ad-hoc plotting outside `paranmr.viz`
+- [ ] No scientific or numerical logic outside `simpnmr_x.core`
+- [ ] No ad-hoc plotting outside `simpnmr_x.viz`
 - [ ] No hidden defaults or implicit behaviour
 
 ---
@@ -42,7 +42,7 @@ If any box is unchecked, explain why and reference prior discussion.
 ## AI Usage Disclosure
 
 - [ ] This change was assisted by AI
-- [ ] `AI_CONTRACT.md` was provided to the AI agent
+- [ ] `AGENTS.md` was provided to the AI agent
 - [ ] Relevant directory tree was provided to the AI
 - [ ] The AI had access only to the files being modified
 - [ ] No speculative behaviour or guessed APIs were introduced

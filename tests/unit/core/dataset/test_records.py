@@ -1,6 +1,6 @@
 import pytest
 
-from paranmr_synth.core.dataset.records import DatasetRecord, TensorTarget
+from simpnmr_x_synth.core.dataset.records import DatasetRecord, TensorTarget
 
 
 def test_dataset_record_preserves_dynamic_ordered_moment_vector():

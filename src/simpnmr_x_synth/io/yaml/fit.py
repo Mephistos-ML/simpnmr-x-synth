@@ -1,4 +1,4 @@
-"""Write runnable ParaNMR replay and assignment-free GMM configurations."""
+"""Write runnable SimpNMR-X replay and assignment-free GMM configurations."""
 
 from __future__ import annotations
 
@@ -8,17 +8,37 @@ from typing import TYPE_CHECKING
 import yaml
 
 if TYPE_CHECKING:
-    from paranmr_synth.cfg.dataset import DatasetGenerationConfig
+    from simpnmr_x_synth.cfg.dataset import DatasetGenerationConfig
 
 
 def write_fit_config(*, config: DatasetGenerationConfig, output_file: Path) -> None:
-    """Write the self-contained ParaNMR replay configuration."""
+    """Write the self-contained SimpNMR-X replay configuration."""
+    susceptibility_variables = {
+        "isoaxrho_euler": {
+            "iso": ["fit", 0.0],
+            "ax": ["fit", 0.01],
+            "rho_over_ax": ["fit", 0.1],
+            "alpha": ["fit", 0.0],
+            "beta": ["fit", 0.0],
+            "gamma": ["fit", 0.0],
+        },
+        "split": {
+            "iso": ["fit", 0.0],
+            "dxx": ["fit", 0.0],
+            "dyy": ["fit", 0.0],
+            "dxy": ["fit", 0.0],
+            "dxz": ["fit", 0.0],
+            "dyz": ["fit", 0.0],
+        },
+    }
     payload = {
-        "project": {"name": "paranmr_fitted_output"},
+        "project": {"name": "simpnmr_x_fitted_output"},
         "hyperfine": {
-            "method": "pdip", "file": "../../DATA/HFC/geometry.xyz",
+            "method": "pdip",
+            "file": "../../DATA/HFC/geometry.xyz",
             "paramagnetic_centre": list(config.hyperfine.paramagnetic_centre),
-            "spin": config.hyperfine.spin, "orbit": config.hyperfine.orbit,
+            "spin": config.hyperfine.spin,
+            "orbit": config.hyperfine.orbit,
             "total_momentum_J": config.hyperfine.total_momentum_j,
         },
         "nuclei": {"include": config.nuclei_include},
@@ -30,11 +50,8 @@ def write_fit_config(*, config: DatasetGenerationConfig, output_file: Path) -> N
         "assignment": {"method": "fixed"},
         "linewidth": {"method": "experimental", "estimate": "p1_p2"},
         "susc_fit": {
-            "type": "isoaxrho_euler",
-            "variables": {
-                "iso": ["fit", 0.0], "ax": ["fit", 0.01], "rho_over_ax": ["fit", 0.1],
-                "alpha": ["fit", 0.0], "beta": ["fit", 0.0], "gamma": ["fit", 0.0],
-            },
+            "type": config.susceptibility.model,
+            "variables": susceptibility_variables[config.susceptibility.model],
         },
     }
     if config.signal_labels_file:
@@ -45,13 +62,15 @@ def write_fit_config(*, config: DatasetGenerationConfig, output_file: Path) -> N
 
 
 def write_gmm_fit_config(*, config: DatasetGenerationConfig, output_file: Path) -> None:
-    """Write a fully relaxed, assignment-free GMM fit configuration."""
+    """Write an assignment-free GMM fit in Cartesian split coordinates."""
     payload = {
-        "project": {"name": "paranmr_gmm_fitted_output"},
+        "project": {"name": "simpnmr_x_gmm_fitted_output"},
         "hyperfine": {
-            "method": "pdip", "file": "../../DATA/HFC/geometry.xyz",
+            "method": "pdip",
+            "file": "../../DATA/HFC/geometry.xyz",
             "paramagnetic_centre": list(config.hyperfine.paramagnetic_centre),
-            "spin": config.hyperfine.spin, "orbit": config.hyperfine.orbit,
+            "spin": config.hyperfine.spin,
+            "orbit": config.hyperfine.orbit,
             "total_momentum_J": config.hyperfine.total_momentum_j,
         },
         "nuclei": {"include": config.nuclei_include},
@@ -59,17 +78,7 @@ def write_gmm_fit_config(*, config: DatasetGenerationConfig, output_file: Path) 
         "experiment": {"files": "../../DATA/PARA/generated_shifts.csv"},
         "assignment": {
             "method": "moments",
-            "moment_objective": {
-                "type": "gmm",
-                "number_of_moments": config.number_of_moments,
-                "covariance": {
-                    "method": "monte_carlo", "n_samples": 500,
-                    "random_seed": config.project.seed,
-                    "perturbation": {
-                        "shift_sigma_abs": 0.02, "width_sigma_rel": 0.05,
-                    },
-                },
-            },
+            "max_moment_order": config.number_of_moments,
         },
         "linewidth": {
             "method": "r6",
@@ -79,14 +88,20 @@ def write_gmm_fit_config(*, config: DatasetGenerationConfig, output_file: Path) 
             },
         },
         "susc_fit": {
-            "type": "isoaxrho_euler",
+            "type": "split",
             "variables": {
-                "iso": ["fit", 0.0], "ax": ["fit", 0.01],
-                "rho_over_ax": ["fit", 0.1], "alpha": ["fit", 0.0],
-                "beta": ["fit", 0.0], "gamma": ["fit", 0.0],
+                "iso": ["fix", 0.0],
+                "dxx": ["fit", 0.0],
+                "dyy": ["fit", 0.0],
+                "dxy": ["fit", 0.0],
+                "dxz": ["fit", 0.0],
+                "dyz": ["fit", 0.0],
             },
         },
     }
+    if config.signal_labels_file:
+        payload["signal_labels"] = {"file": "../../DATA/LABELS/labels.csv"}
+        payload["susc_fit"]["average_shifts"] = "all"
     output_file.parent.mkdir(parents=True, exist_ok=True)
     with output_file.open("w", encoding="utf-8") as handle:
         yaml.safe_dump(payload, handle, sort_keys=False)

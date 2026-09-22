@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+
 @dataclass(frozen=True, slots=True)
 class ProjectConfig:
     name: str
@@ -42,3 +43,12 @@ class LinewidthConfig:
 @dataclass(frozen=True, slots=True)
 class SusceptibilityConfig:
     model: str
+    rho_over_ax: float | None = None
+    alpha: float | None = None
+    beta: float | None = None
+    gamma: float | None = None
+    dxx: float | None = None
+    dyy: float | None = None
+    dxy: float | None = None
+    dxz: float | None = None
+    dyz: float | None = None
