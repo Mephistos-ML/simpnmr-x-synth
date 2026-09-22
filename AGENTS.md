@@ -1,4 +1,4 @@
-# ParaNMR-Synth — AI Agent Development Contract
+# SimpNMR-X-Synth — AI Agent Development Contract
 
 ## 1. Scope and Authority
 
@@ -8,22 +8,22 @@ must not be proposed or applied.
 
 ## 2. Product Boundary
 
-`ParaNMR-Synth` is the reproducible synthetic-dataset orchestrator for the
-ParaNMR ecosystem. Its production artifact is a provenance-complete dataset,
+`SimpNMR-X-Synth` is the reproducible synthetic-dataset orchestrator for the
+SimpNMR-X ecosystem. Its production artifact is a provenance-complete dataset,
 not merely a susceptibility-tensor CSV.
 
-ParaNMR is the sole source of truth for scientific pNMR behaviour:
+SimpNMR-X is the sole source of truth for scientific pNMR behaviour:
 
 - susceptibility tensor parameterizations and conventions;
 - PDA and other hyperfine forward models;
 - linewidth calculations;
 - Gaussian peak representation and moment descriptors;
-- ParaNMR experiment-file formats.
+- SimpNMR-X experiment-file formats.
 
-`ParaNMR-Synth` may sample physical latent variables, apply explicitly
+`SimpNMR-X-Synth` may sample physical latent variables, apply explicitly
 configured measurement noise, and write dataset manifests. Dataset splitting
 is an explicit downstream ML concern, not an implicit generator policy. It
-must call ParaNMR APIs for every scientific calculation.
+must call SimpNMR-X APIs for every scientific calculation.
 
 ## 3. Layers and Allowed Dependencies
 
@@ -35,10 +35,10 @@ CLI -> app -> core
 External dependency direction is:
 
 ```text
-ParaNMR-Synth -> ParaNMR
+SimpNMR-X-Synth -> SimpNMR-X
 ```
 
-ParaNMR must never import `paranmr_synth`.
+SimpNMR-X must never import `simpnmr_x_synth`.
 
 - `cli`: argument parsing and dispatch only.
 - `cfg`: YAML parsing and validation only.
@@ -48,23 +48,23 @@ ParaNMR must never import `paranmr_synth`.
 
 ## 4. Scientific Source-of-Truth Rules
 
-The following are forbidden in `ParaNMR-Synth`:
+The following are forbidden in `SimpNMR-X-Synth`:
 
 - reimplementing χ tensor construction, Euler rotations, PDA, PCS, linewidth,
   Gaussian peak, or moment equations;
-- calling the `paranmr` CLI or parsing ParaNMR output text to obtain a numeric
-  result when a Python API exists or can be added to ParaNMR;
-- silently approximating missing ParaNMR functionality.
+- calling the `simpnmr-x` CLI or parsing SimpNMR-X output text to obtain a numeric
+  result when a Python API exists or can be added to SimpNMR-X;
+- silently approximating missing SimpNMR-X functionality.
 
-`ParaNMR-Synth` must never modify ParaNMR. If an API is unavailable, use a
-supported existing ParaNMR interface or leave the capability out of scope.
+`SimpNMR-X-Synth` must never modify SimpNMR-X. If an API is unavailable, use a
+supported existing SimpNMR-X interface or leave the capability out of scope.
 
 ## 5. Dataset Contract
 
 Every dataset must have a manifest recording at least:
 
 - dataset schema version;
-- `ParaNMR-Synth` and ParaNMR versions;
+- `SimpNMR-X-Synth` and SimpNMR-X versions;
 - full normalized YAML configuration;
 - all random seeds;
 - source geometry and input-file checksums;
