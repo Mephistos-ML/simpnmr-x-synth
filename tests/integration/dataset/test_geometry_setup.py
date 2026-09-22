@@ -1,10 +1,15 @@
 from pathlib import Path
 
-from simpnmr_x_synth.app.pipelines.dataset_generation import generate_cases, prepare_dataset_molecule
-from simpnmr_x_synth.app.pipelines.dataset_generation import generate_case, generate_case_artifacts, simulate_peaks
+from simpnmr_x_synth.app.pipelines.dataset_generation import (
+    generate_case,
+    generate_case_artifacts,
+    generate_cases,
+    prepare_dataset_molecule,
+    simulate_peaks,
+)
 from simpnmr_x_synth.cfg.dataset import DatasetGenerationConfig
 from simpnmr_x_synth.core.generators.linewidth import LinewidthLatents
-from simpnmr_x_synth.core.generators.susceptibility import SusceptibilityLatents
+from simpnmr_x_synth.core.generators.susceptibility import IsoAxRhoEulerLatents
 
 
 def test_prepare_dataset_molecule_attaches_pdip_and_diamagnetic_shifts(tmp_path: Path):
@@ -44,7 +49,7 @@ def test_prepare_dataset_molecule_attaches_pdip_and_diamagnetic_shifts(tmp_path:
 
     peaks = simulate_peaks(
         molecule=molecule,
-        susceptibility=SusceptibilityLatents(
+        susceptibility=IsoAxRhoEulerLatents(
             iso=0.0,
             ax=0.02,
             rho_over_ax=0.1,
@@ -94,9 +99,12 @@ def test_synthetic_peaks_apply_chemical_label_averaging(tmp_path: Path):
         {
             "project": {"name": "yb", "n_cases": 1, "seed": 42},
             "hyperfine": {
-                "method": "pdip", "file": str(geometry),
-                "paramagnetic_centre": [0, 0, 0], "spin": 0.5,
-                "orbit": 3, "total_momentum_J": 3.5,
+                "method": "pdip",
+                "file": str(geometry),
+                "paramagnetic_centre": [0, 0, 0],
+                "spin": 0.5,
+                "orbit": 3,
+                "total_momentum_J": 3.5,
             },
             "nuclei": {"include": "H"},
             "signal_labels": {"file": str(labels)},

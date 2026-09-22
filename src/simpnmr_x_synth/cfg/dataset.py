@@ -9,8 +9,12 @@ from typing import Any
 import yaml
 
 from simpnmr_x_synth.cfg.models import (
-    DiamagneticConfig, ExperimentConfig, HyperfineConfig, LinewidthConfig,
-    ProjectConfig, SusceptibilityConfig,
+    DiamagneticConfig,
+    ExperimentConfig,
+    HyperfineConfig,
+    LinewidthConfig,
+    ProjectConfig,
+    SusceptibilityConfig,
 )
 
 
@@ -69,11 +73,40 @@ class DatasetGenerationConfig:
         if linewidth_method != "r6":
             raise ValueError("linewidth.method must be 'r6'")
         model = str(susceptibility["model"]).lower()
-        if model != "isoaxrho_euler":
-            raise ValueError("susceptibility.model must be 'isoaxrho_euler'")
+        if model not in {"isoaxrho_euler", "split"}:
+            raise ValueError("susceptibility.model must be 'isoaxrho_euler' or 'split'")
         rho_over_ax = _optional_float(susceptibility, "rho_over_ax")
         if rho_over_ax is not None and not 0.0 <= rho_over_ax <= 1.0 / 3.0:
             raise ValueError("susceptibility.rho_over_ax must be in [0, 1/3]")
+        split_names = ("dxx", "dyy", "dxy", "dxz", "dyz")
+        split_values = tuple(
+            _optional_float(susceptibility, name) for name in split_names
+        )
+        if any(value is not None for value in split_values) and not all(
+            value is not None for value in split_values
+        ):
+            raise ValueError(
+                "split susceptibility components must be provided together"
+            )
+        if model == "isoaxrho_euler" and any(
+            value is not None for value in split_values
+        ):
+            raise ValueError(
+                "dxx, dyy, dxy, dxz, and dyz require susceptibility.model 'split'"
+            )
+        if model == "split" and any(
+            value is not None
+            for value in (
+                rho_over_ax,
+                _optional_float(susceptibility, "alpha"),
+                _optional_float(susceptibility, "beta"),
+                _optional_float(susceptibility, "gamma"),
+            )
+        ):
+            raise ValueError(
+                "rho_over_ax and Euler angles require susceptibility.model "
+                "'isoaxrho_euler'"
+            )
         centre = tuple(float(value) for value in hyperfine["paramagnetic_centre"])
         if len(centre) != 3:
             raise ValueError("hyperfine.paramagnetic_centre must have three values")
@@ -102,14 +135,27 @@ class DatasetGenerationConfig:
         if n_cases <= 0 or number_of_moments <= 0:
             raise ValueError("n_cases and number_of_moments must be positive")
         return cls(
-            project=ProjectConfig(_nonempty(project["name"], "project.name"), n_cases, int(project["seed"])),
-            hyperfine=HyperfineConfig(_nonempty(hyperfine["file"], "hyperfine.file"), centre, float(hyperfine["spin"]), float(hyperfine["orbit"]), float(hyperfine["total_momentum_J"])),
+            project=ProjectConfig(
+                _nonempty(project["name"], "project.name"),
+                n_cases,
+                int(project["seed"]),
+            ),
+            hyperfine=HyperfineConfig(
+                _nonempty(hyperfine["file"], "hyperfine.file"),
+                centre,
+                float(hyperfine["spin"]),
+                float(hyperfine["orbit"]),
+                float(hyperfine["total_momentum_J"]),
+            ),
             signal_labels_file=str(signal_labels.get("file", "")).strip(),
             nuclei_include=_nonempty(nuclei["include"], "nuclei.include"),
             diamagnetic=DiamagneticConfig(
                 diamagnetic_method, diamagnetic_file, reference_method, reference_file
             ),
-            experiment=ExperimentConfig(float(experiment["temperature_k"]), float(experiment["magnetic_field_t"])),
+            experiment=ExperimentConfig(
+                float(experiment["temperature_k"]),
+                float(experiment["magnetic_field_t"]),
+            ),
             number_of_moments=number_of_moments,
             linewidth=LinewidthConfig(linewidth_method),
             susceptibility=SusceptibilityConfig(
@@ -118,6 +164,11 @@ class DatasetGenerationConfig:
                 alpha=_optional_float(susceptibility, "alpha"),
                 beta=_optional_float(susceptibility, "beta"),
                 gamma=_optional_float(susceptibility, "gamma"),
+                dxx=split_values[0],
+                dyy=split_values[1],
+                dxy=split_values[2],
+                dxz=split_values[3],
+                dyz=split_values[4],
             ),
         )
 

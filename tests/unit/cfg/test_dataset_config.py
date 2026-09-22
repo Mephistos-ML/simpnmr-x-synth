@@ -46,6 +46,24 @@ def test_dataset_config_accepts_fixed_tensor_orientation():
     assert config.susceptibility.gamma == 0.0
 
 
+def test_dataset_config_accepts_split_susceptibility_model():
+    raw = _config()
+    raw["susceptibility"] = {"model": "split"}
+
+    config = DatasetGenerationConfig.from_mapping(raw)
+
+    assert config.susceptibility.model == "split"
+    assert config.susceptibility.dxx is None
+
+
+def test_dataset_config_requires_complete_fixed_split_components():
+    raw = _config()
+    raw["susceptibility"] = {"model": "split", "dxx": 0.01}
+
+    with pytest.raises(ValueError, match="provided together"):
+        DatasetGenerationConfig.from_mapping(raw)
+
+
 def test_dataset_config_requires_number_of_moments():
     raw = _config()
     del raw["moments"]["number_of_moments"]
