@@ -7,11 +7,11 @@ from typing import TYPE_CHECKING
 
 import pandas as pd
 
-from paranmr_synth.io.csv.csv_util import write_csv_safe
+from simpnmr_x_synth.io.csv.csv_util import write_csv_safe
 
 if TYPE_CHECKING:
-    from paranmr_synth.core.dataset.records import TensorTarget
-    from paranmr_synth.core.generators.susceptibility import SusceptibilityLatents
+    from simpnmr_x_synth.core.dataset.records import TensorTarget
+    from simpnmr_x_synth.core.generators.susceptibility import SusceptibilityLatents
 
 
 def write_susceptibility(

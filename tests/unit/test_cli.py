@@ -1,4 +1,4 @@
-from paranmr_synth.cli.main import build_parser
+from simpnmr_x_synth.cli.main import build_parser
 
 
 def test_cli_exposes_only_dataset_generation_and_validation_commands():

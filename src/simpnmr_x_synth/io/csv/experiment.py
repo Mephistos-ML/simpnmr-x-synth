@@ -1,4 +1,4 @@
-"""Write ParaNMR experiment inputs."""
+"""Write SimpNMR-X experiment inputs."""
 
 from __future__ import annotations
 
@@ -7,20 +7,20 @@ from typing import TYPE_CHECKING
 
 import pandas as pd
 
-from paranmr.core.const.gammas import NUCLEAR_GAMMAS
-from paranmr.core.util.strings import remove_numbers
+from simpnmr_x.core.const.gammas import NUCLEAR_GAMMAS
+from simpnmr_x.core.util.strings import remove_numbers
 
-from paranmr_synth.io.csv.csv_util import write_csv_safe
+from simpnmr_x_synth.io.csv.csv_util import write_csv_safe
 
 if TYPE_CHECKING:
-    from paranmr_synth.app.pipelines.dataset_generation import GeneratedCase
-    from paranmr_synth.cfg.dataset import DatasetGenerationConfig
+    from simpnmr_x_synth.app.pipelines.dataset_generation import GeneratedCase
+    from simpnmr_x_synth.cfg.dataset import DatasetGenerationConfig
 
 
 def write_experiment(
     *, config: DatasetGenerationConfig, case: GeneratedCase, output_file: Path
 ) -> None:
-    """Write the generated peak list using ParaNMR's experiment writer."""
+    """Write the generated peak list using SimpNMR-X's experiment writer."""
     gamma = NUCLEAR_GAMMAS[remove_numbers(config.nuclei_include)]
     rows = [
         {

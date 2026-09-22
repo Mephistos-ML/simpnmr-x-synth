@@ -1,4 +1,4 @@
-"""Acceptance test for the synthetic case → ParaNMR fit → validation loop."""
+"""Acceptance test for the synthetic case → SimpNMR-X fit → validation loop."""
 
 from __future__ import annotations
 
@@ -11,21 +11,21 @@ from pathlib import Path
 import pytest
 import yaml
 
-from paranmr_synth.app.pipelines.dataset_export import generate_dataset
-from paranmr_synth.app.pipelines.dataset_validation import validate_dataset_case
-from paranmr_synth.cfg.dataset import DatasetGenerationConfig
+from simpnmr_x_synth.app.pipelines.dataset_export import generate_dataset
+from simpnmr_x_synth.app.pipelines.dataset_validation import validate_dataset_case
+from simpnmr_x_synth.cfg.dataset import DatasetGenerationConfig
 
 
 @pytest.mark.integration
 def test_controlled_synthetic_case_recovers_chi_and_linewidth(tmp_path: Path):
-    """Recover one active χ degree of freedom through the real ParaNMR CLI.
+    """Recover one active χ degree of freedom through the real SimpNMR-X CLI.
 
     The control profile fixes nuisance susceptibility coordinates. It verifies
     the file contract and numerical round-trip without asserting that one
     spectrum identifies every ``isoaxrho_euler`` degree of freedom.
     """
-    if shutil.which("paranmr") is None:
-        pytest.skip("ParaNMR CLI is not installed")
+    if shutil.which("simpnmr-x") is None:
+        pytest.skip("SimpNMR-X CLI is not installed")
     geometry = tmp_path / "model.xyz"
     geometry.write_text(
         "4\nsynthetic Yb model\nYb 0 0 0\nH 1 0 0\nH 0 1.5 0\nH 0 0 2\n",
@@ -63,7 +63,7 @@ def test_controlled_synthetic_case_recovers_chi_and_linewidth(tmp_path: Path):
     environment = {**os.environ, "MPLBACKEND": "Agg", "MPLCONFIGDIR": str(tmp_path / "mpl")}
     result = subprocess.run(
         [
-            "paranmr", "--hide", "fit_susc", "config.yml",
+            "simpnmr-x", "--hide", "fit_susc", "config.yml",
             "--shift_plots", "off", "--spread_plots", "off",
             "--contrib_plots", "off", "--isoaxrho_plots", "off",
         ],
@@ -74,7 +74,7 @@ def test_controlled_synthetic_case_recovers_chi_and_linewidth(tmp_path: Path):
     )
     assert result.returncode == 0, result.stdout + result.stderr
     fitted = _read_one_row(
-        fit_dir / "paranmr_fitted_output" / "susceptibility_tensor.csv"
+        fit_dir / "simpnmr_x_fitted_output" / "susceptibility_tensor.csv"
     )
     fitted_columns = {
         "chi_xx": "chi_xx (Å^3)", "chi_xy": "chi_xy (Å^3)",

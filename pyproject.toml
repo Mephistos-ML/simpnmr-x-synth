@@ -5,9 +5,9 @@ requires = ["setuptools>=61", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "ParaNMR-Synth"
+name = "SimpNMR-X-Synth"
 dynamic = ["version"]
-description = "Reproducible synthetic pNMR dataset generator for ParaNMR workflows"
+description = "Reproducible synthetic pNMR dataset generator for SimpNMR-X workflows"
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [
@@ -21,7 +21,7 @@ classifiers = [
 requires-python = ">=3.10"
 dependencies = [
     "numpy",
-    "paranmr",
+    "simpnmr-x",
     "pyyaml",
 ]
 
@@ -34,21 +34,21 @@ dev = [
 ]
 
 [project.scripts]
-paranmr-synth = "paranmr_synth.cli.main:main"
+simpnmr-x-synth = "simpnmr_x_synth.cli.main:main"
 
 [project.urls]
-Homepage = "https://github.com/Mephistos-ML/ParaNMR-Synth"
-Repository = "https://github.com/Mephistos-ML/ParaNMR-Synth"
-Issues = "https://github.com/Mephistos-ML/ParaNMR-Synth/issues"
+Homepage = "https://github.com/Mephistos-ML/SimpNMR-X-Synth"
+Repository = "https://github.com/Mephistos-ML/SimpNMR-X-Synth"
+Issues = "https://github.com/Mephistos-ML/SimpNMR-X-Synth/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.setuptools.dynamic]
-version = {attr = "paranmr_synth.__version__.__version__"}
+version = {attr = "simpnmr_x_synth.__version__.__version__"}
 
 [tool.semantic_release]
-version_variables = ["src/paranmr_synth/__version__.py:__version__"]
+version_variables = ["src/simpnmr_x_synth/__version__.py:__version__"]
 branch = "main"
 commit_parser = "conventional"
 allow_zero_version = true

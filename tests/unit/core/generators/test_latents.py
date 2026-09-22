@@ -1,6 +1,6 @@
-from paranmr_synth.cfg.dataset import DatasetGenerationConfig
-from paranmr_synth.core.generators.susceptibility import generate_susceptibility_latents
-from paranmr.core.phys.susc import get_spin_only_susc
+from simpnmr_x_synth.cfg.dataset import DatasetGenerationConfig
+from simpnmr_x_synth.core.generators.susceptibility import generate_susceptibility_latents
+from simpnmr_x.core.phys.susc import get_spin_only_susc
 
 
 def test_latent_sampling_is_stable_per_case_and_parameter():
@@ -34,3 +34,25 @@ def test_latent_sampling_is_stable_per_case_and_parameter():
     )
     assert min(principal_components) >= 0.0
     assert 0.0 <= first.rho_over_ax <= 1.0 / 3.0
+
+
+def test_latent_sampling_respects_fixed_tensor_orientation():
+    raw = {
+        "project": {"name": "test", "n_cases": 1, "seed": 42},
+        "hyperfine": {"method": "pdip", "file": "test.xyz", "paramagnetic_centre": [0, 0, 0], "spin": 0.5, "orbit": 3, "total_momentum_J": 3.5},
+        "nuclei": {"include": "H"},
+        "diamagnetic": {"method": "csv", "file": "dia.csv"},
+        "experiment": {"temperature_k": 302.15, "magnetic_field_t": 4.7},
+        "moments": {"number_of_moments": 10},
+        "linewidth": {"method": "r6"},
+        "susceptibility": {"model": "isoaxrho_euler", "rho_over_ax": 0.0, "alpha": 0.0, "beta": 0.0, "gamma": 0.0},
+    }
+
+    latent = generate_susceptibility_latents(
+        config=DatasetGenerationConfig.from_mapping(raw),
+        geometry_checksum="abc",
+        case_index=0,
+    )
+
+    assert latent.ax != 0.0
+    assert latent.rho_over_ax == latent.alpha == latent.beta == latent.gamma == 0.0

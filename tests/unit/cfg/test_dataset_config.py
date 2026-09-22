@@ -1,6 +1,6 @@
 import pytest
 
-from paranmr_synth.cfg.dataset import DatasetGenerationConfig
+from simpnmr_x_synth.cfg.dataset import DatasetGenerationConfig
 
 
 def _config(number_of_moments: int = 10) -> dict:
@@ -29,6 +29,21 @@ def test_dataset_config_builds_dynamic_moment_labels():
     assert config.moment_labels == tuple(f"m{index}" for index in range(1, 11))
     assert config.linewidth.method == "r6"
     assert config.susceptibility.model == "isoaxrho_euler"
+    assert config.susceptibility.rho_over_ax is None
+
+
+def test_dataset_config_accepts_fixed_tensor_orientation():
+    raw = _config()
+    raw["susceptibility"].update(
+        {"rho_over_ax": 0.0, "alpha": 0.0, "beta": 0.0, "gamma": 0.0}
+    )
+
+    config = DatasetGenerationConfig.from_mapping(raw)
+
+    assert config.susceptibility.rho_over_ax == 0.0
+    assert config.susceptibility.alpha == 0.0
+    assert config.susceptibility.beta == 0.0
+    assert config.susceptibility.gamma == 0.0
 
 
 def test_dataset_config_requires_number_of_moments():

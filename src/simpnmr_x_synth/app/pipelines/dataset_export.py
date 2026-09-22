@@ -7,25 +7,25 @@ import shutil
 
 import pandas as pd
 
-from paranmr_synth.app.pipelines.dataset_generation import (
+from simpnmr_x_synth.app.pipelines.dataset_generation import (
     GeneratedCase,
     generate_case_artifacts,
     prepare_dataset_molecule,
 )
-from paranmr_synth.cfg.dataset import DatasetGenerationConfig
-from paranmr_synth.io.csv.experiment import write_experiment
-from paranmr_synth.io.csv.ml import write_ml_dataset
-from paranmr_synth.io.csv.susceptibility import write_susceptibility
-from paranmr_synth.io.csv.csv_util import write_csv_safe
-from paranmr_synth.io.json.manifest import write_manifest
-from paranmr_synth.io.xyz.geometry import write_indexed_geometry
-from paranmr_synth.io.yaml.fit import write_fit_config, write_gmm_fit_config
+from simpnmr_x_synth.cfg.dataset import DatasetGenerationConfig
+from simpnmr_x_synth.io.csv.experiment import write_experiment
+from simpnmr_x_synth.io.csv.ml import write_ml_dataset
+from simpnmr_x_synth.io.csv.susceptibility import write_susceptibility
+from simpnmr_x_synth.io.csv.csv_util import write_csv_safe
+from simpnmr_x_synth.io.json.manifest import write_manifest
+from simpnmr_x_synth.io.xyz.geometry import write_indexed_geometry
+from simpnmr_x_synth.io.yaml.fit import write_fit_config, write_gmm_fit_config
 
 
 def generate_dataset(
     *, config: DatasetGenerationConfig, output_dir: str | Path
 ) -> Path:
-    """Generate all cases, their ParaNMR inputs, and the paired ML dataset."""
+    """Generate all cases, their SimpNMR-X inputs, and the paired ML dataset."""
     molecule, checksum = prepare_dataset_molecule(config)
     cases = tuple(
         generate_case_artifacts(
@@ -71,7 +71,7 @@ def _write_case(*, config: DatasetGenerationConfig, case: GeneratedCase, molecul
 
 
 def _write_diamagnetic_csv(*, molecule, output_file: Path) -> None:
-    """Write ParaNMR-normalized atom-resolved dia shifts for replay."""
+    """Write SimpNMR-X-normalized atom-resolved dia shifts for replay."""
     write_csv_safe(
         pd.DataFrame(
             [{"atom_label": nucleus.label, "shift": nucleus.shift.dia} for nucleus in molecule.nuclei]

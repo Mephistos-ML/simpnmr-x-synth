@@ -42,3 +42,7 @@ class LinewidthConfig:
 @dataclass(frozen=True, slots=True)
 class SusceptibilityConfig:
     model: str
+    rho_over_ax: float | None = None
+    alpha: float | None = None
+    beta: float | None = None
+    gamma: float | None = None

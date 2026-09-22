@@ -8,7 +8,7 @@ from typing import Any
 
 import yaml
 
-from paranmr_synth.cfg.models import (
+from simpnmr_x_synth.cfg.models import (
     DiamagneticConfig, ExperimentConfig, HyperfineConfig, LinewidthConfig,
     ProjectConfig, SusceptibilityConfig,
 )
@@ -71,6 +71,9 @@ class DatasetGenerationConfig:
         model = str(susceptibility["model"]).lower()
         if model != "isoaxrho_euler":
             raise ValueError("susceptibility.model must be 'isoaxrho_euler'")
+        rho_over_ax = _optional_float(susceptibility, "rho_over_ax")
+        if rho_over_ax is not None and not 0.0 <= rho_over_ax <= 1.0 / 3.0:
+            raise ValueError("susceptibility.rho_over_ax must be in [0, 1/3]")
         centre = tuple(float(value) for value in hyperfine["paramagnetic_centre"])
         if len(centre) != 3:
             raise ValueError("hyperfine.paramagnetic_centre must have three values")
@@ -109,7 +112,13 @@ class DatasetGenerationConfig:
             experiment=ExperimentConfig(float(experiment["temperature_k"]), float(experiment["magnetic_field_t"])),
             number_of_moments=number_of_moments,
             linewidth=LinewidthConfig(linewidth_method),
-            susceptibility=SusceptibilityConfig(model),
+            susceptibility=SusceptibilityConfig(
+                model=model,
+                rho_over_ax=rho_over_ax,
+                alpha=_optional_float(susceptibility, "alpha"),
+                beta=_optional_float(susceptibility, "beta"),
+                gamma=_optional_float(susceptibility, "gamma"),
+            ),
         )
 
     @property
@@ -130,3 +139,9 @@ def _nonempty(value: object, name: str) -> str:
     if not text:
         raise ValueError(f"{name} must be non-empty")
     return text
+
+
+def _optional_float(raw: dict[str, Any], name: str) -> float | None:
+    """Return one optional numeric susceptibility setting."""
+    value = raw.get(name)
+    return None if value is None else float(value)

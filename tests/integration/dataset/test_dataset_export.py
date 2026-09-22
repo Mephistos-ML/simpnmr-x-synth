@@ -2,10 +2,10 @@ import csv
 import json
 from pathlib import Path
 
-from paranmr.cfg.config import FitSuscConfig
+from simpnmr_x.cfg.config import FitSuscConfig
 
-from paranmr_synth.app.pipelines.dataset_export import generate_dataset
-from paranmr_synth.cfg.dataset import DatasetGenerationConfig
+from simpnmr_x_synth.app.pipelines.dataset_export import generate_dataset
+from simpnmr_x_synth.cfg.dataset import DatasetGenerationConfig
 
 
 def test_generate_dataset_writes_replayable_cases_and_paired_ml_table(tmp_path: Path):
@@ -58,24 +58,30 @@ def test_generate_dataset_writes_replayable_cases_and_paired_ml_table(tmp_path: 
     ]
     for artifact in csv_artifacts:
         assert artifact.read_text(encoding="utf-8-sig").startswith(
-            "# This file was generated with ParaNMR-Synth v"
+            "# This file was generated with SimpNMR-X-Synth v"
         )
-    assert "paranmr_fitted_output" in fit_config.read_text()
+    assert "simpnmr_x_fitted_output" in fit_config.read_text()
     assert FitSuscConfig.from_file(fit_config).assignment_method == "fixed"
     generated_gmm = FitSuscConfig.from_file(gmm_config)
     assert generated_gmm.assignment_method == "moments"
-    assert generated_gmm.assignment_moment_objective["type"] == "gmm"
+    assert generated_gmm.assignment_max_moment_order == 3
+    assert generated_gmm.susc_fit_type == "split"
+    assert generated_gmm.susc_fit_variables["iso"] == ["fix", 0.0]
     assert len(generated_gmm.susc_fit_variables) == 6
-    assert all(value[0] == "fit" for value in generated_gmm.susc_fit_variables.values())
+    assert all(
+        value[0] == "fit"
+        for name, value in generated_gmm.susc_fit_variables.items()
+        if name != "iso"
+    )
     assert all(
         value[0] == "fit" for value in generated_gmm.linewidth_variables.values()
     )
     manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
     assert manifest["normalized_config"]["number_of_moments"] == 3
-    assert "paranmr_version" in manifest["generator"]
+    assert "simpnmr_x_version" in manifest["generator"]
 
 
-def test_fixed_profile_exports_paranmr_r6_linewidth_estimation(tmp_path: Path):
+def test_fixed_profile_exports_simpnmr_x_r6_linewidth_estimation(tmp_path: Path):
     geometry = tmp_path / "model.xyz"
     geometry.write_text(
         "3\nsynthetic Yb model\nYb 0 0 0\nH 1 0 0\nH 0 1 0\n",

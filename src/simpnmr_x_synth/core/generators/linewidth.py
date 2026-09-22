@@ -1,8 +1,8 @@
 """Deterministic physical R6 linewidth-parameter generation.
 
-The distance-dependent component is derived from ParaNMR's point-dipole
+The distance-dependent component is derived from SimpNMR-X's point-dipole
 Guéron Curie ``R2`` forward calculation. The distance-independent component
-is sampled in Hz and converted to ParaNMR's internal ppm R6 convention.
+is sampled in Hz and converted to SimpNMR-X's internal ppm R6 convention.
 """
 
 from __future__ import annotations
@@ -12,14 +12,14 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from paranmr.core.const.gammas import NUCLEAR_GAMMAS
-from paranmr.core.relaxation.gueron import calc_r2_curie
+from simpnmr_x.core.const.gammas import NUCLEAR_GAMMAS
+from simpnmr_x.core.relaxation.gueron import calc_r2_curie
 
-from paranmr_synth.core.generators.deterministic import unit_interval_draw
+from simpnmr_x_synth.core.generators.deterministic import unit_interval_draw
 
 if TYPE_CHECKING:
-    from paranmr.core.domain.mol import Molecule
-    from paranmr_synth.cfg.dataset import DatasetGenerationConfig
+    from simpnmr_x.core.domain.mol import Molecule
+    from simpnmr_x_synth.cfg.dataset import DatasetGenerationConfig
 
 
 # Fixed synthetic-generation policy, not a user-facing fit parameter.
@@ -29,7 +29,7 @@ P2_HZ_BOUNDS = (0.0, 50.0)
 
 @dataclass(frozen=True, slots=True)
 class LinewidthLatents:
-    """R6 parameters in ParaNMR ppm convention plus human-facing Hz truth."""
+    """R6 parameters in SimpNMR-X ppm convention plus human-facing Hz truth."""
 
     p1: float
     p2: float
@@ -59,10 +59,10 @@ def generate_linewidth_latents(
 def derive_curie_p1_ppm_a6(
     *, config: "DatasetGenerationConfig", molecule: "Molecule"
 ) -> float:
-    """Derive ``p1`` from ParaNMR's Curie ``R2`` forward API.
+    """Derive ``p1`` from SimpNMR-X's Curie ``R2`` forward API.
 
     For one isotope, the point-dipole Curie rate is exactly proportional to
-    ``r^-6``. This function evaluates the ParaNMR forward API and removes that
+    ``r^-6``. This function evaluates the SimpNMR-X forward API and removes that
     geometric factor instead of duplicating its physical expression.
     """
     _validate_r6_molecule(molecule)
